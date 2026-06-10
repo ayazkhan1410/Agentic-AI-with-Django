@@ -27,7 +27,10 @@ class RetrieveDocumentDataView(APIView):
 class RetrieveSingleDocumentDataView(APIView):
     def get(self, request, pk):
         try:
-            document = Document.objects.get(id=pk)
+            document = Document.objects.get(
+                id=pk,
+                active=True
+            )
             serializer = DocumentSerializer(document)
             return Response({
                 "message": "Document retrieved successfully",
@@ -38,3 +41,4 @@ class RetrieveSingleDocumentDataView(APIView):
             return Response({
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 
