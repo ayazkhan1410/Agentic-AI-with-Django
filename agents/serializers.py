@@ -12,6 +12,10 @@ class RetrieveUserSerializer(serializers.ModelSerializer):
         ]
 
 
+class ChatSerializer(serializers.Serializer):
+    message = serializers.CharField(required=True, trim_whitespace=True)
+
+
 class DocumentSerializer(serializers.ModelSerializer):
     owner = RetrieveUserSerializer()
     created_at = serializers.DateTimeField(

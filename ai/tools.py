@@ -1,0 +1,71 @@
+from langchain_core.tools import tool
+from langchain_core.runnables import RunnableConfig
+
+from agents.models import Document
+
+
+def get_document(document_id, config: RunnableConfig):
+    """Get one document by ID."""
+    print("Config data in single document tool:", config)
+
+    user_id = config.get("configurable", {}).get("user_id")
+    print("USER ID IN SINGLE DOCUMENT:", user_id)
+
+    try:
+        document = (
+            Document.objects.select_related("owner")
+            .filter(id=document_id, active=True, owner__id=user_id)
+            .first()
+        )
+        if not document:
+            return {"error": f"Document with id {document_id} not found."}
+    except Exception as e:
+        return {"error": f"Error getting document: {e}"}
+
+    owner = document.owner
+    return {
+        "id": document.id,
+        "title": document.title,
+        "content": document.content,
+        "active": document.active,
+        "owner": owner.username if owner else None,
+        "created_at": document.created_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+        "updated_at": document.updated_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+    }
+
+
+def get_documents(config: RunnableConfig):
+    """Get Last 5 documents and return them in a list."""
+    user_id = config.get("configurable", {}).get("user_id")
+    print("USER ID IN GET DOCUMENTS:", user_id)
+
+    try:
+        documents = Document.objects.select_related(
+            "owner"
+        ).filter(
+            active=True,
+            owner__id=user_id
+        ).order_by("-created_at")[:5]
+    except Document.DoesNotExist:
+        return {"error": "No documents found."}
+    except Exception as e:
+        return {"error": f"Error getting documents: {e}"}
+
+    response_data = []
+    for document in documents:
+        owner = document.owner
+        response_data.append({
+            "id": document.id,
+            "title": document.title,
+            "content": document.content,
+            "active": document.active,
+            "owner": owner.username if owner else None,
+            "created_at": document.created_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+            "updated_at": document.updated_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+        })
+
+    return response_data
+
+
+get_document_tool = tool(get_document)
+get_documents_tool = tool(get_documents)

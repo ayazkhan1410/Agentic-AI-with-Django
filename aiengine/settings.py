@@ -1,4 +1,5 @@
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -99,3 +100,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# OpenAI API key
+OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+OPENAI_ORGANIZATION = config('OPENAI_ORGANIZATION', default='')
+OPENAI_MODEL = config('OPENAI_MODEL', default='gpt-5.4-mini')
