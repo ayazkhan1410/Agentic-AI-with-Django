@@ -64,5 +64,34 @@ def get_documents(config: RunnableConfig):
     return response_data
 
 
+def create_document(
+    title: str,
+    content: str,
+    config: RunnableConfig
+) -> dict:
+    """Create a new document."""
+    user_id = config.get("configurable", {}).get("user_id")
+
+    try:
+        document = Document.objects.create(
+            title=title,
+            content=content,
+            owner_id=user_id
+        )
+    except Exception as e:
+        return {"error": f"Error creating document: {e}"}
+
+    return {
+        "id": document.id,
+        "title": document.title,
+        "content": document.content,
+        "active": document.active,
+        "owner": document.owner.username if document.owner else None,
+        "created_at": document.created_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+        "updated_at": document.updated_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+    }
+
+
 get_document_tool = tool(get_document)
 get_documents_tool = tool(get_documents)
+create_document_tool = tool(create_document)

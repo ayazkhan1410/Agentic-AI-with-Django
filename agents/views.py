@@ -48,9 +48,6 @@ class RetrieveSingleDocumentDataView(APIView):
 
 
 class ChatView(APIView):
-    '''
-    Endpoint to chat with the agent
-    '''
     def post(self, request):
         serializer = ChatSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
