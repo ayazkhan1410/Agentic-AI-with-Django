@@ -6,10 +6,7 @@ from agents.models import Document
 
 def get_document(document_id, config: RunnableConfig):
     """Get one document by ID."""
-    print("Config data in single document tool:", config)
-
     user_id = config.get("configurable", {}).get("user_id")
-    print("USER ID IN SINGLE DOCUMENT:", user_id)
 
     try:
         document = (
