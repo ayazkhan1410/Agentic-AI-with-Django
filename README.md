@@ -160,7 +160,3 @@ Documents are registered in Django admin:
 ```
 http://127.0.0.1:8000/admin/
 ```
-
-## License
-
-MIT (or your chosen license)
