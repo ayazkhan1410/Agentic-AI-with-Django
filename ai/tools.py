@@ -92,6 +92,46 @@ def create_document(
     }
 
 
+def update_document(
+    document_id: int,
+    title: str | None = None,
+    content: str | None = None,
+    config: RunnableConfig = None
+) -> dict:
+    """Update an existing document."""
+    user_id = config.get("configurable", {}).get("user_id")
+
+    try:
+        document = Document.objects.filter(
+            id=document_id,
+            owner__id=user_id
+        ).first()
+        if not document:
+            return {"error": f"Document with id {document_id} not found."}
+
+        if title is not None:
+            document.title = title
+        if content is not None:
+            document.content = content
+        if title is None and content is None:
+            return {"error": "No fields to update."}
+
+        document.save()
+    except Exception as e:
+        return {"error": f"Error updating document: {e}"}
+
+    return {
+        "id": document.id,
+        "title": document.title,
+        "content": document.content,
+        "active": document.active,
+        "owner": document.owner.username if document.owner else None,
+        "created_at": document.created_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+        "updated_at": document.updated_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+    }
+
+
 get_document_tool = tool(get_document)
 get_documents_tool = tool(get_documents)
 create_document_tool = tool(create_document)
+update_document_tool = tool(update_document)
