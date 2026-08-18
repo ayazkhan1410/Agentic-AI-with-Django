@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from langchain_core.tools import tool
 from langchain_core.runnables import RunnableConfig
 
@@ -31,10 +33,16 @@ def get_document(document_id, config: RunnableConfig):
     }
 
 
-def get_documents(config: RunnableConfig):
+def get_documents(
+    config: RunnableConfig,
+    limit: int = 5,
+    maximum_limit: int = 25,
+):
     """Get Last 5 documents and return them in a list."""
     user_id = config.get("configurable", {}).get("user_id")
     print("USER ID IN GET DOCUMENTS:", user_id)
+
+    limit = max(1, min(limit, maximum_limit))
 
     try:
         documents = Document.objects.select_related(
@@ -42,7 +50,7 @@ def get_documents(config: RunnableConfig):
         ).filter(
             active=True,
             owner__id=user_id
-        ).order_by("-created_at")[:5]
+        ).order_by("-created_at")[:limit]
     except Document.DoesNotExist:
         return {"error": "No documents found."}
     except Exception as e:
@@ -131,7 +139,46 @@ def update_document(
     }
 
 
+def search_documents(
+    query: str,
+    config: RunnableConfig = None,
+    limit: int = 5,
+    maximum_limit: int = 25,
+) -> dict:
+    """Search for documents by title or content."""
+    user_id = config.get("configurable", {}).get("user_id")
+
+    limit = max(1, min(limit, maximum_limit))
+
+    try:
+        default_lookups = {
+            "active": True,
+            "owner__id": user_id,
+        }
+        documents = Document.objects.filter(**default_lookups).filter(
+            Q(title__icontains=query) | Q(content__icontains=query)
+        )[:limit]
+    except Exception as e:
+        return {"error": f"Error searching documents: {e}"}
+
+    response_data = []
+    for document in documents:
+        owner = document.owner
+        response_data.append({
+            "id": document.id,
+            "title": document.title,
+            "content": document.content,
+            "active": document.active,
+            "owner": owner.username if owner else None,
+            "created_at": document.created_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+            "updated_at": document.updated_at.strftime("%Y-%m-%d %I:%M:%S %p"),
+        })
+
+    return response_data
+
+
 get_document_tool = tool(get_document)
 get_documents_tool = tool(get_documents)
 create_document_tool = tool(create_document)
 update_document_tool = tool(update_document)
+search_documents_tool = tool(search_documents)

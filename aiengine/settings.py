@@ -105,3 +105,7 @@ STATIC_URL = 'static/'
 OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
 OPENAI_ORGANIZATION = config('OPENAI_ORGANIZATION', default='')
 OPENAI_MODEL = config('OPENAI_MODEL', default='gpt-5.4-mini')
+MOVIE_DB_API_KEY = config('MOVIE_DB_API_KEY', default='')
+MOVIE_DB_READ_ACCESS_TOKEN = config('MOVIE_DB_READ_ACCESS_TOKEN', default='')
+SEARCH_MOVIE_URL = config('SEARCH_MOVIE_URL', default='')
+MOVIE_DETAILS_URL = config('MOVIE_DETAILS_URL', default='')
