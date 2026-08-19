@@ -19,6 +19,7 @@ def get_document_agent(check_pointer=None):
     agent = create_agent(
         model=llm,
         tools=tools,
+        name="document_agent",
         system_prompt=(
             "You are a helpful assistant in managing a user's"
             "documents within this app. "
@@ -36,6 +37,7 @@ def get_movie_discovery_agent(check_pointer=None):
     agent = create_agent(
         model=llm,
         tools=tools,
+        name="movie_discovery_agent",
         system_prompt=(
             "You are a helpful assistant in discovering movies based on "
             "a user's query. If you need to search for a movie, do so."
