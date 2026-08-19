@@ -5,7 +5,12 @@ from langchain_core.runnables import RunnableConfig
 
 from agents.models import Document
 
+from tmbd.client import search_movie, get_movie_details
 
+
+# =============================
+# Document Tools
+# =============================
 def get_document(document_id, config: RunnableConfig):
     """Get one document by ID."""
     user_id = config.get("configurable", {}).get("user_id")
@@ -177,8 +182,74 @@ def search_documents(
     return response_data
 
 
+# =============================
+# Movie Discovery Tools
+# =============================
+def search_movie_tool(
+    query: str,
+    config: RunnableConfig,
+    limit: int = 5,
+    maximum_limit: int = 25,
+):
+    """
+    Search for movies by title or content using the provided query.
+
+    Args:
+        query (str): The search term to find movies by title or content.
+        config (RunnableConfig): Configuration that should include user
+            context.
+        limit (int, optional): The maximum number of movie results to
+            return. Defaults to 5.
+        maximum_limit (int, optional): The upper bound for result
+            limitation. Defaults to 25.
+    Returns:
+        list: A list of movie objects containing details
+           matched by the search query.
+    """
+
+    user_id = config.get("configurable", {}).get("user_id")
+    print("USER ID IN GET DOCUMENTS:", user_id)
+
+    limit = max(1, min(limit, maximum_limit))
+
+    # Search for a movie
+    response = search_movie(query).get("results", [])[:limit]
+    print('Search Movie Response: ', response)
+    return response
+
+
+def get_movie_details_tool(movie_id: int, config: RunnableConfig):
+    """
+    Retrieve details for a specific movie by its movie ID.
+
+    Args:
+        movie_id (int): The unique identifier of the movie.
+        config (RunnableConfig): Configuration that should include user
+            context.
+    Returns:
+        dict: A dictionary containing detailed information about the movie.
+    """
+    user_id = config.get("configurable", {}).get("user_id")
+    print("USER ID IN GET MOVIE DETAILS:", user_id)
+
+    # Get movie details
+    movie_details = get_movie_details(movie_id)
+    print('Movie Details: ', movie_details)
+    return movie_details
+
+
+# =============================
+# Document Tools
+# =============================
 get_document_tool = tool(get_document)
 get_documents_tool = tool(get_documents)
 create_document_tool = tool(create_document)
 update_document_tool = tool(update_document)
 search_documents_tool = tool(search_documents)
+
+
+# =============================
+# Movie Discovery Tools
+# =============================
+search_movie_tool = tool(search_movie_tool)
+get_movie_details_tool = tool(get_movie_details_tool)
