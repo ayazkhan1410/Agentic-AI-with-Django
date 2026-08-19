@@ -56,8 +56,8 @@ Agentic-Ai-Django/
 ### Installation
 
 ```bash
-git clone <your-repo-url>
-cd Agentic-Ai-Django
+git clone https://github.com/ayazkhan1410/Agentic-AI-with-Django.git
+cd Agentic-AI-with-Django
 
 python -m venv venv
 source venv/bin/activate   # Linux/macOS
