@@ -182,6 +182,24 @@ def search_documents(
     return response_data
 
 
+def delete_document(
+    document_id: int,
+    config: RunnableConfig = None
+) -> dict:
+    """Delete a document by ID."""
+    user_id = config.get("configurable", {}).get("user_id")
+    try:
+        document = Document.objects.filter(
+            id=document_id, owner__id=user_id
+        ).first()
+        if not document:
+            return {"error": f"Document with id {document_id} not found."}
+        document.delete()
+    except Exception as e:
+        return {"error": f"Error deleting document: {e}"}
+    return {"success": f"Document with id {document_id} deleted successfully."}
+
+
 # =============================
 # Movie Discovery Tools
 # =============================
@@ -246,6 +264,7 @@ get_documents_tool = tool(get_documents)
 create_document_tool = tool(create_document)
 update_document_tool = tool(update_document)
 search_documents_tool = tool(search_documents)
+delete_document_tool = tool(delete_document)
 
 
 # =============================
